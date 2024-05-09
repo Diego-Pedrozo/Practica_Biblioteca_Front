@@ -1,7 +1,8 @@
-import Dashboard from './Dashboard'
+// import Dashboard from './Dashboard'
 import Navbar from './components/Navbar'
 import { Routes, Route } from 'react-router-dom'
 import Home from './components/views/Home'
+import Dashboard from './components/views/Dashboard'
 
 function App() {
   return (
@@ -10,12 +11,8 @@ function App() {
         <Navbar />
         <Routes>
           <Route path='/' element={<Home />} />
+          <Route path='/dashboardd' element={<Dashboard />} />
         </Routes>
-        {/* <div className='flex-1 bg-slate-200'>
-          <h1 className="text-5xl font-bold underline m-10">
-            Publicaciones
-          </h1>
-        </div> */}
       </div>
     </>
   )
