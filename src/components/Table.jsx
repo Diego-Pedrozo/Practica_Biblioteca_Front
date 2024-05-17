@@ -36,3 +36,5 @@ function Table({ columns, data }) {
     </table>
   );
 }
+
+export default Table;

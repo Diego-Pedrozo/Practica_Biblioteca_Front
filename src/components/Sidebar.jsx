@@ -11,7 +11,7 @@ function Sidebar({ setIsLoggedIn }) {
         <nav className='fixed left-0 flex flex-col justify-between w-72 border-r-2 z-10 bg-white h-full top-0 py-4'>
             <div className='flex flex-col gap-2 w-full mr-4 mt-24'>
                 <h5 className='text-stone-600 text-xl px-8'>Dashboard</h5>
-                <Link to={'/'} className='duration-300 fill-rojo stroke-rojo hover:stroke-white hover:fill-white hover:bg-rojo hover:text-white
+                <Link to={'/solicitudes'} className='duration-300 fill-rojo stroke-rojo hover:stroke-white hover:fill-white hover:bg-rojo hover:text-white
                 flex gap-4 justify-start items-center rounded-r-full p-4 mr-4'>
                     <PooIcon size={32} />
                     <p className='text-2xl font-medium'>Solicitudes</p>
