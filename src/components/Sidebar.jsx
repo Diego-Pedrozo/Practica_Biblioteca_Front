@@ -1,5 +1,10 @@
 import { PooIcon, BellIcon, ConfigIcon } from '../assets/svg/SvgIcon';
 import { Link } from 'react-router-dom';
+import PropTypes from 'prop-types';
+
+Sidebar.propTypes = {
+    setIsLoggedIn: PropTypes.func.isRequired
+};
 
 function Sidebar({ setIsLoggedIn }) {
 

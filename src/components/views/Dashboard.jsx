@@ -1,10 +1,12 @@
-import Sidebar from './components/Sidebar'
+import Sidebar from '../Sidebar'
+import Tabla from '../Tabla'
 
 function Dashboard() {
     return (
         <>
-            <div className=''>
+            <div className='flex justify-center'>
                 <Sidebar />
+                <Tabla />
             </div>
         </>
     )

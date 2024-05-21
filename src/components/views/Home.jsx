@@ -1,5 +1,7 @@
 //import React from 'react'
+import { useState } from "react";
 import Publicacion from "../Publicacion"
+import FormularioSolicitud from "../FormularioSolicitud";
 
 function Home() {
    const publicaciones = [
@@ -23,6 +25,8 @@ function Home() {
       }
    ];
 
+   const [isFormVisible, setIsFormVisible] = useState(false);
+
    return (
       <>
          {publicaciones.map(publicacion => (
@@ -33,6 +37,16 @@ function Home() {
                imagen={publicacion.imagen}
             />
          ))}
+
+         <button
+            className="fixed bottom-5 right-5 duration-300 bg-rojo text-white p-4 hover:scale-105 font-bold xt-center rounded-lg w-40 self-center"
+            onClick={() => setIsFormVisible(!isFormVisible)}
+         >
+            {isFormVisible ? 'Cancelar' : 'Realizar solicitud'}
+         </button>
+         {isFormVisible && (
+            <FormularioSolicitud closeForm={() => setIsFormVisible(false)} />
+         )}
       </>
 
    )

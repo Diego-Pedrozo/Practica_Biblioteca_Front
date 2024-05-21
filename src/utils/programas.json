@@ -1,0 +1,128 @@
+{
+    "facultades": [
+        {
+            "id": 1,
+            "nombre": "Ciencias Agrarias y del Ambiente",
+            "programas": [
+                {
+                    "id": 1,
+                    "nombre": "Ingeniería Agroindustrial"
+                },
+                {
+                    "id": 2,
+                    "nombre": "Ingeniería Agronómica"
+                },
+                {
+                    "id": 3,
+                    "nombre": "Ingeniería Ambiental"
+                },
+                {
+                    "id": 4,
+                    "nombre": "Ingeniería Biotecnológica"
+                },
+                {
+                    "id": 5,
+                    "nombre": "Zootecnia"
+                }
+            ]
+        },
+        {
+            "id": 2,
+            "nombre": "Ciencias Básicas",
+            "programas": [
+                {
+                    "id": 6,
+                    "nombre": "Química Industrial"
+                }
+            ]
+        },
+        {
+            "id": 3,
+            "nombre": "Ciencias Empresariales",
+            "programas": [
+                {
+                    "id": 7,
+                    "nombre": "Administración de Empresas"
+                },
+                {
+                    "id": 8,
+                    "nombre": "Contaduría Pública"
+                },
+                {
+                    "id": 9,
+                    "nombre": "Comercio Internacional"
+                }
+            ]
+        },
+        {
+            "id": 4,
+            "nombre": "Ciencias de salud",
+            "programas": [
+                {
+                    "id": 10,
+                    "nombre": "Enfermería"
+                },
+                {
+                    "id": 11,
+                    "nombre": "Seguridad y Salud en el Trabajo"
+                }
+            ]
+        },
+        {
+            "id": 5,
+            "nombre": "Educación, Artes y Humanidades",
+            "programas": [
+                {
+                    "id": 12,
+                    "nombre": "Comunicación Social"
+                },
+                {
+                    "id": 13,
+                    "nombre": "Trabajo Social"
+                },
+                {
+                    "id": 14,
+                    "nombre": "Derecho"
+                },
+                {
+                    "id": 15,
+                    "nombre": "Arquitectura"
+                }
+            ]
+        },
+        {
+            "id": 6,
+            "nombre": "Ingeniería",
+            "programas": [
+                {
+                    "id": 16,
+                    "nombre": "Ingeniería Civil"
+                },
+                {
+                    "id": 17,
+                    "nombre": "Ingeniería de Sistemas"
+                },
+                {
+                    "id": 18,
+                    "nombre": "Ingeniería Electrónica"
+                },
+                {
+                    "id": 19,
+                    "nombre": "Ingeniería Electromecánica"
+                },
+                {
+                    "id": 20,
+                    "nombre": "Ingeniería Industrial"
+                },
+                {
+                    "id": 21,
+                    "nombre": "Ingeniería de Minas"
+                },
+                {
+                    "id": 22,
+                    "nombre": "Ingeniería Mecánica"
+                }
+            ]
+        }
+    ]
+}
