@@ -1,17 +1,15 @@
 import logo from '../assets/logo.png';
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-//import Sidebar from './Sidebar';
+import FormularioLogin from './FormularioLogin';
+import { useSession } from '../hooks/SessionContext';
 
 function Navbar() {
+    const { state } = useSession();
     const location = useLocation();
     const isDashboard = location.pathname === '/dashboard';
 
-    const [isLoggedIn, setIsLoggedIn] = useState(false);
-
-    const login = () => {
-        setIsLoggedIn(true);
-    };
+    const [isFormVisible, setIsFormVisible] = useState(false);
 
     return (
         <>
@@ -21,29 +19,31 @@ function Navbar() {
                 </Link>
                 <h1 className="text-white font-semibold text-2xl">Adquisición de material bibliográfico</h1>
                 {
-                    !isLoggedIn && (
-                        <Link to={'/dashboard'} onClick={login} className="duration-300 bg-white text-rojo hover:scale-105 font-bold p-2 text-center rounded-lg w-40 self-center">
-                            Iniciar Sesión
-                        </Link>
+                    !state.isLoggedIn && !isDashboard ? (
+                        <button
+                            className="duration-300 bg-white text-rojo hover:scale-105 font-bold p-2 text-center rounded-lg w-40 self-center"
+                            onClick={() => setIsFormVisible(!isFormVisible)}
+                        >
+                            {isFormVisible ? 'Cancelar' : 'Iniciar Sesión'}
+                        </button>
+                    ) : (
+                        !isDashboard && state.isLoggedIn ? (
+                            <Link to={'/dashboard'} className="duration-300 bg-white text-rojo hover:scale-105 font-bold p-2 text-center rounded-lg w-40 self-center">
+                                Dashboard
+                            </Link>
+                        ) : (
+                            isDashboard && state.isLoggedIn && (
+                                <div className='w-40'></div>
+                            )
+                        )
                     )
-
                 }
                 {
-                    !isDashboard && isLoggedIn && (
-                        <Link to={'/dashboard'} onClick={login} className="duration-300 bg-white text-rojo hover:scale-105 font-bold p-2 text-center rounded-lg w-40 self-center">
-                            Dashboard
-                        </Link>
-                    )
-                }
-                {
-                    isDashboard && isLoggedIn && (
-                        <div className='w-40'></div>
+                    isFormVisible && (
+                        <FormularioLogin closeForm={() => setIsFormVisible(false)} />
                     )
                 }
             </nav>
-            {/* {
-                isLoggedIn && <Sidebar setIsLoggedIn={setIsLoggedIn} />
-            } */}
         </>
     )
 }
