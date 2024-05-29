@@ -1,4 +1,3 @@
-// import Dashboard from './Dashboard'
 import Navbar from './components/Navbar'
 import { Routes, Route } from 'react-router-dom'
 import Home from './components/views/Home'
@@ -17,8 +16,6 @@ function App() {
     const fetchData = async () => {
       try {
         const token = localStorage.getItem('authToken');
-
-        // Solicitar datos del usuario
         const response = await axios.get('http://127.0.0.1:8000/api/user/', {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -28,7 +25,6 @@ function App() {
           type: 'LOGIN',
         });
       } catch (error) {
-        // Manejar errores
         dispatch({
           type: 'LOGOUT',
         });

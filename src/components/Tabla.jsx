@@ -1,46 +1,175 @@
-//import React from 'react';
 import PropTypes from 'prop-types';
 import data from '../utils/programas.json';
 import { useEffect, useState } from "react";
+import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
+import FormularioEstado from './FormularioEstado';
+import FormularioNotificacion from './FormularioNotificacion'
 
-const Table = ({ solicitudes, userData, selectedOption }) => {
+const Table = ({ userData, selectedOption }) => {
     const user_type = userData.information.user_type;
     const user_facultad = userData.information.user_facultad || '';
     const user_programa = userData.information.user_programa || '';
     const showRechazarButton = user_type !== '2' && user_type !== '3' && user_type !== '4' && user_type !== '5';
 
+
+    const navigate = useNavigate()
+    const [solicitudes, setSolicitudes] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
     const [selectedAll, setSelectedAll] = useState(false);
     const [selected, setSelected] = useState(solicitudes.map(() => false));
-    const [facultad, setFacultad] = useState('');
-    const [programa, setPrograma] = useState('');
+    const [facultad, setFacultad] = useState(user_facultad);
+    const [programa, setPrograma] = useState(user_programa);
+    const [estado, setEstado] = useState('Inexistente');
+    const [nivelRevision, setNivelRevision] = useState('1');
     const [filter, setFilter] = useState({
-        facultad: '',
-        programa: '',
-        estado: '',
         fechaInicio: '',
         fechaFin: '',
     });
 
+    const [showForm, setShowForm] = useState(false);
+    const [showFormNotificacion, setShowFormNotificacion] = useState(false);
+    const [selectedSolicitud, setSelectedSolicitud] = useState(null);
+    const [selectedSolicitudes, setSelectedSolicitudes] = useState([])
+    const [reloadData, setReloadData] = useState()
+
+    const handleEstadoClick = (solicitud) => {
+        setSelectedSolicitud(solicitud);
+        setShowForm(true);
+    };
+
+    const formNotificacion = () => {
+        setShowFormNotificacion(true)
+    }
+
+    const closeForm = () => {
+        setShowForm(false);
+        setSelectedSolicitud(null);
+    };
+
+    const closeFormNotificacion = () => {
+        setShowFormNotificacion(false)
+        setReloadData(Date.now())
+    };
+
+    const saveEstado = async (id, nuevoEstado) => {
+        try {
+            const token = localStorage.getItem('authToken');
+            const data = {
+                "estado": nuevoEstado,
+            };
+            await axios.patch(`http://127.0.0.1:8000/api/materialbibliografico/solicitud/${id}/`, data, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+            alert('Estado actualizado')
+            setReloadData(Date.now())
+        } catch (error) {
+            alert('No se puedo actualizar el estado')
+            console.error('Error al actualizar el estado:', error);
+        }
+    }
+
+    const fetchSolicitudes = async (option, token) => {
+        let endpoint = '';
+        if (option === 'solicitudes') {
+            endpoint = 'http://127.0.0.1:8000/api/materialbibliografico/solicitud/solicitudes_revisadas/';
+        }
+        if (option === 'vicerrectoria') {
+            endpoint = 'http://127.0.0.1:8000/api/materialbibliografico/solicitud/solicitudes_revisadas/';
+        }
+
+        const response = await axios.get(endpoint, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+            params: {
+                facultad: facultad,
+                programa: programa,
+                estado: estado,
+                nivel_revision: nivelRevision,
+            },
+        });
+        return response.data;
+    };
+
+    const enviarSolicitudes = async (ids_solicitudes) => {
+        try {
+            const token = localStorage.getItem('authToken');
+            const data = {
+                "ids_solicitudes": ids_solicitudes,
+            };
+            await axios.post(`http://127.0.0.1:8000/api/materialbibliografico/solicitud/enviar_solicitudes/`, data, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+            alert('Solicitudes enviadas')
+            setReloadData(Date.now())
+        } catch (error) {
+            alert('Error')
+            console.error('Error:', error);
+        }
+    };
+
+    const rechazarSolicitudes = async (ids_solicitudes) => {
+        try {
+            const token = localStorage.getItem('authToken');
+            const data = {
+                "ids_solicitudes": ids_solicitudes,
+            };
+            await axios.post(`http://127.0.0.1:8000/api/materialbibliografico/solicitud/rechazar_solicitudes/`, data, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+            alert('Solicitudes rechazadas')
+            setReloadData(Date.now())
+        } catch (error) {
+            alert('Error')
+            console.error('Error:', error);
+        }
+    };
+
     useEffect(() => {
-        if (user_facultad) {
-            setFacultad(user_facultad.toString());
-            setFilter((prevFilter) => ({
-                ...prevFilter,
-                facultad: user_facultad.toString(),
-            }));
-            if (user_programa) {
-                setPrograma(user_programa.toString());
-                setFilter((prevFilter) => ({
-                    ...prevFilter,
-                    programa: user_programa.toString(),
-                }));
+        const fetchData = async () => {
+            try {
+                const token = localStorage.getItem('authToken');
+                const solicitudesResponse = await fetchSolicitudes(selectedOption, token);
+                setSolicitudes(solicitudesResponse);
+                setSelected(solicitudesResponse.map(() => false));
+                setSelectedAll(false)
+                setSelectedSolicitudes([])
+                setLoading(false);
+            } catch (error) {
+                console.error('Error al obtener los datos:', error);
+                setError(error.message);
+                setLoading(false);
+                navigate('/')
             }
         }
-    }, [user_facultad, user_programa]);
+        if (user_facultad) {
+            setFacultad(user_facultad);
+            if (user_programa) {
+                setPrograma(user_programa);
+            }
+        }
+        fetchData();
+    }, [reloadData, facultad, programa, estado, nivelRevision]);
 
     const handleSelectAll = () => {
         setSelectedAll(!selectedAll);
         setSelected(solicitudes.map(() => !selectedAll));
+
+        const newSelectedAll = !selectedAll;
+        if (newSelectedAll) {
+            const allIds = solicitudes.map(solicitud => solicitud.id);
+            setSelectedSolicitudes(allIds);
+        } else {
+            setSelectedSolicitudes([]);
+        }
     };
 
     const handleSelect = (index) => {
@@ -52,24 +181,35 @@ const Table = ({ solicitudes, userData, selectedOption }) => {
         } else {
             setSelectedAll(false);
         }
+
+        const selectedId = solicitudes[index].id;
+        if (newSelected[index]) {
+            setSelectedSolicitudes((prevSelectedSolicitudes) => [
+                ...prevSelectedSolicitudes,
+                selectedId
+            ]);
+        } else {
+            setSelectedSolicitudes((prevSelectedSolicitudes) =>
+                prevSelectedSolicitudes.filter(id => id !== selectedId)
+            );
+        }
     };
 
     const handleFacultadChange = (e) => {
         setFacultad(e.target.value);
         setPrograma('');
-        setFilter((prevFilter) => ({
-            ...prevFilter,
-            facultad: e.target.value,
-            programa: '',
-        }));
     };
 
     const handleProgramaChange = (e) => {
         setPrograma(e.target.value);
-        setFilter((prevFilter) => ({
-            ...prevFilter,
-            programa: e.target.value,
-        }));
+    };
+
+    const handleEstadoChange = (e) => {
+        setEstado(e.target.value);
+    };
+
+    const handleNivelRevisionChange = (e) => {
+        setNivelRevision(e.target.value);
     };
 
     const facultadOptions = data.facultades.map((facultad) => (
@@ -101,61 +241,89 @@ const Table = ({ solicitudes, userData, selectedOption }) => {
         const fechaInicio = filter.fechaInicio ? new Date(filter.fechaInicio) : null;
         const fechaFin = filter.fechaFin ? new Date(filter.fechaFin) : null;
         return (
-            (filter.facultad === '' || solicitud.facultad === filter.facultad) &&
-            (filter.programa === '' || solicitud.programa_academico === filter.programa) &&
-            (filter.estado === '' || solicitud.estado === filter.estado) &&
             (!fechaInicio || fechaSolicitud >= fechaInicio) &&
             (!fechaFin || fechaSolicitud <= fechaFin)
         );
     });
 
+    if (loading) {
+        return <div className="pt-32 pl-80 pr-8 w-screen">Cargando...</div>;
+    }
+
+    if (error) {
+        return <div className="pt-32 pl-80 pr-8 w-screen">Error: {error}</div>;
+    }
+
     return (
-        <div className="pt-6 pl-80 pr-8 w-screen">
+        <div className="pt-32 pl-80 pr-8 w-screen">
             <h1 className="text-2xl text-center text-rojo font-bold mb-4">Solicitudes</h1>
-            <div className="flex justify-between mb-4">
-                <label className="block text-rojo font-semibold">
-                    Facultad:
-                    <select className="ml-2 p-2 border rounded"
-                        id="facultad"
-                        type="text"
-                        value={facultad}
-                        onChange={handleFacultadChange}
-                        disabled={user_type === '2' || user_type === '3' || user_type === '4'}
-                    >
-                        <option>Seleccionar</option>
-                        {facultadOptions}
-                    </select>
-                </label>
-                <label className="block text-rojo font-semibold">
-                    Programa académico:
-                    <select className="ml-2 p-2 border rounded"
-                        id="programa"
-                        type="text"
-                        value={programa}
-                        onChange={handleProgramaChange}
-                        disabled={!facultad || user_type === '2' || user_type === '3'}
-                    >
-                        <option value="">{!facultad ? 'Primero seleccione la facultad' : 'Seleccione al que pertenece'}</option>
-                        {programaOptions}
-                    </select>
-                </label>
-                <label className="block text-rojo font-semibold">
-                    Estado:
-                    <select
-                        className="ml-2 p-2 border rounded"
-                        id="estado"
-                        name="estado"
-                        value={filter.estado}
-                        onChange={handleFilterChange}
-                    >
-                        <option value="">Seleccionar</option>
-                        <option value="Existente">Existente</option>
-                        <option value="En tramite">En trámite</option>
-                        <option value="Inexistente">Inexistente</option>
-                        <option value="Sin revisar">Sin revisar</option>
-                    </select>
-                </label>
-                <div className='flex'>
+            <div className="flex justify-between my-4 h-24">
+                <div className='flex flex-col justify-between'>
+                    <label className="block text-rojo font-semibold">
+                        Facultad:
+                        <select className="ml-2 p-2 border rounded"
+                            id="facultad"
+                            type="text"
+                            value={facultad}
+                            onChange={handleFacultadChange}
+                            disabled={user_type === '2' || user_type === '3' || user_type === '4'}
+                        >
+                            <option value="">Seleccionar</option>
+                            {facultadOptions}
+                        </select>
+                    </label>
+                    <label className="block text-rojo font-semibold">
+                        Programa académico:
+                        <select className="ml-2 p-2 border rounded"
+                            id="programa"
+                            type="text"
+                            value={programa}
+                            onChange={handleProgramaChange}
+                            disabled={!facultad || user_type === '2' || user_type === '3'}
+                        >
+                            <option value="">{!facultad ? 'Primero seleccione la facultad' : 'Seleccionar'}</option>
+                            {programaOptions}
+                        </select>
+                    </label>
+                </div>
+                <div className='flex flex-col justify-between'>
+                    {selectedOption === 'solicitudes' && (
+                        <label className="block text-rojo font-semibold">
+                            Estado libro:
+                            <select
+                                className="ml-2 p-2 border rounded"
+                                id="estado"
+                                name="estado"
+                                value={estado}
+                                onChange={handleEstadoChange}
+                            >
+                                <option value="">Seleccionar</option>
+                                <option value="Existente">Existente</option>
+                                <option value="En tramite">En trámite</option>
+                                <option value="Inexistente">Inexistente</option>
+                                <option value="Sin revisar">Sin revisar</option>
+                            </select>
+                        </label>
+                    )}
+                    {selectedOption === 'solicitudes' && (
+                        <label className="block text-rojo font-semibold">
+                            Estado revisión:
+                            <select
+                                className="ml-2 p-2 border rounded"
+                                id="revision"
+                                name="revision"
+                                value={nivelRevision}
+                                onChange={handleNivelRevisionChange}
+                            >
+                                <option value="1">Recibidas</option>
+                                {user_type !== '6' && (<option value="2">Enviadas</option>)}
+                                <option value="5">{user_type === '6' ? 'Aprobadas' : 'Aprobadas por vicerrector'}</option>
+                                <option value="6">{user_type === '6' ? 'Rechazadas' : 'Rechazadas por vicerrector'}</option>
+                            </select>
+                        </label>
+                    )}
+                </div>
+                <div className='flex flex-col justify-between'>
                     <label className="block text-rojo font-semibold pr-5">
                         Fecha inicio:
                         <input
@@ -180,6 +348,19 @@ const Table = ({ solicitudes, userData, selectedOption }) => {
                     </label>
                 </div>
             </div>
+            {showForm && (
+                <FormularioEstado
+                    solicitud={selectedSolicitud}
+                    onClose={closeForm}
+                    onSave={saveEstado}
+                />
+            )}
+            {showFormNotificacion && (
+                <FormularioNotificacion
+                    solicitudes={selectedSolicitudes}
+                    onClose={closeFormNotificacion}
+                />
+            )}
             <table className="min-w-full bg-white border border-gray-300">
                 <thead>
                     <tr>
@@ -191,17 +372,19 @@ const Table = ({ solicitudes, userData, selectedOption }) => {
                         <th className="py-2 px-4 border-b">Año publicación</th>
                         <th className="py-2 px-4 border-b">Idioma</th>
                         <th className="py-2 px-4 border-b">Estado</th>
-                        <th className="py-2 px-4 border-b">
-                            <div className="flex items-center justify-center">
-                                Seleccionar
-                                <input
-                                    type="checkbox"
-                                    className="ml-2"
-                                    checked={selectedAll}
-                                    onChange={handleSelectAll}
-                                />
-                            </div>
-                        </th>
+                        {(((user_type === '5' || user_type === '6') && estado === 'Inexistente' && nivelRevision === '1') || ((user_type === '2' || user_type === '3' || user_type === '4') && estado === 'Sin revisar' && nivelRevision === '1')) && (
+                            <th className="py-2 px-4 border-b">
+                                <div className="flex items-center justify-center">
+                                    Seleccionar
+                                    <input
+                                        type="checkbox"
+                                        className="ml-2"
+                                        checked={selectedAll}
+                                        onChange={handleSelectAll}
+                                    />
+                                </div>
+                            </th>
+                        )}
                     </tr>
                 </thead>
                 <tbody>
@@ -215,23 +398,42 @@ const Table = ({ solicitudes, userData, selectedOption }) => {
                             <td className="py-2 px-4 border-b text-center">{solicitud.libro.fecha_publicacion}</td>
                             <td className="py-2 px-4 border-b text-center">{solicitud.libro.idioma}</td>
                             <td className="py-2 px-4 border-b text-center">
-                                <span
-                                    className={`inline-block w-4 h-4 rounded-full ${solicitud.estado === 'Existente'
-                                        ? 'bg-green-500'
-                                        : solicitud.estado === 'En tramite'
-                                            ? 'bg-yellow-500'
-                                            : solicitud.estado === 'Inexistente'
-                                                ? 'bg-red-500'
-                                                : 'bg-gray-500'
-                                        }`}
-                                ></span>
+                                {
+                                    user_type === '5' ? (
+                                        <button onClick={() => handleEstadoClick(solicitud)}>
+                                            <span
+                                                className={`inline-block w-4 h-4 rounded-full ${solicitud.estado === 'Existente'
+                                                    ? 'bg-green-500'
+                                                    : solicitud.estado === 'En tramite'
+                                                        ? 'bg-yellow-500'
+                                                        : solicitud.estado === 'Inexistente'
+                                                            ? 'bg-red-500'
+                                                            : 'bg-gray-500'
+                                                    }`}
+                                            ></span>
+                                        </button>
+                                    ) : (
+                                        <span
+                                            className={`inline-block w-4 h-4 rounded-full ${solicitud.estado === 'Existente'
+                                                ? 'bg-green-500'
+                                                : solicitud.estado === 'En tramite'
+                                                    ? 'bg-yellow-500'
+                                                    : solicitud.estado === 'Inexistente'
+                                                        ? 'bg-red-500'
+                                                        : 'bg-gray-500'
+                                                }`}
+                                        ></span>
+                                    )
+                                }
                             </td>
-                            <td className="py-2 px-4 border-b text-center">
-                                <input type="checkbox"
-                                    checked={selected[index]}
-                                    onChange={() => handleSelect(index)}
-                                />
-                            </td>
+                            {(((user_type === '5' || user_type === '6') && estado === 'Inexistente' && nivelRevision === '1') || ((user_type === '2' || user_type === '3' || user_type === '4') && estado === 'Sin revisar' && nivelRevision === '1')) && (
+                                <td className="py-2 px-4 border-b text-center">
+                                    <input type="checkbox"
+                                        checked={selected[index]}
+                                        onChange={() => handleSelect(index)}
+                                    />
+                                </td>
+                            )}
                         </tr>
                     ))}
                 </tbody>
@@ -243,18 +445,23 @@ const Table = ({ solicitudes, userData, selectedOption }) => {
                 </button>
                 <div className="flex">
                     {showRechazarButton && (
-                        <button className="bg-gray-400 text-white py-2 px-4 rounded mr-2">
+                        <button onClick={() => rechazarSolicitudes(selectedSolicitudes)} className="bg-gray-400 text-white py-2 px-4 rounded mr-2">
                             <span className="material-icons mr-2">Icono</span>
                             Rechazar
                         </button>
                     )}
-                    {selectedOption === 'solicitudes' && (
-                        <button className="bg-rojo text-white py-2 px-4 rounded flex items-center">
+                    {user_type !== '6' && (
+                        <button onClick={() => enviarSolicitudes(selectedSolicitudes)} className="bg-rojo text-white py-2 px-4 rounded flex items-center">
                             <span className="material-icons mr-2">Icono</span>
                             {!showRechazarButton ? 'Enviar seleccionadas' : 'Adquirir y comunicar'}
                         </button>
                     )}
-
+                    {user_type === '6' && (
+                        <button onClick={() => formNotificacion()} className="bg-rojo text-white py-2 px-4 rounded flex items-center">
+                            <span className="material-icons mr-2">Icono</span>
+                            {!showRechazarButton ? 'Enviar seleccionadas' : 'Adquirir y comunicar'}
+                        </button>
+                    )}
                 </div>
             </div>
         </div>
@@ -263,7 +470,6 @@ const Table = ({ solicitudes, userData, selectedOption }) => {
 
 Table.propTypes = {
     userData: PropTypes.object.isRequired,
-    solicitudes: PropTypes.array.isRequired,
     selectedOption: PropTypes.string.isRequired,
 };
 

@@ -32,7 +32,6 @@ function FormularioLogin({ closeForm }) {
             };
             axios.post('http://127.0.0.1:8000/api/auth/token/', formData)
                 .then(response => {
-                    // Maneja la respuesta del servidor si es necesario
                     const token = response.data.access;
                     localStorage.setItem('authToken', token);
                     dispatch({
@@ -42,7 +41,6 @@ function FormularioLogin({ closeForm }) {
                     navigate('/dashboard');
                 })
                 .catch(error => {
-                    // Maneja el error si la solicitud falla
                     console.log(error);
                     alert('Credenciales incorrectas');
 

@@ -13,7 +13,7 @@ function Navbar() {
 
     return (
         <>
-            <nav className='bg-rojo px-8 py-4 flex justify-between items-center z-50 h-24'>
+            <nav className='bg-rojo px-8 py-4 flex justify-between items-center z-50 h-24 fixed top-0 left-0 w-full'>
                 <Link to={'/'} className='hover:scale-105 duration-300'>
                     <img src={logo} alt="Logo" className="w-40" />
                 </Link>

@@ -3,7 +3,6 @@ import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import { useSession } from '../hooks/SessionContext';
 
-
 function Sidebar({ onOptionChange, userData }) {
 
     const { dispatch } = useSession();
@@ -72,22 +71,21 @@ function Sidebar({ onOptionChange, userData }) {
                     <PooIcon size={32} />
                     <p className='text-2xl font-medium'>Solicitudes</p>
                 </button>
-
                 {userData.information.user_type === '5' && (
                     <button onClick={() => onOptionChange('vicerrectoria')} className="className='duration-300 fill-rojo stroke-rojo hover:stroke-white hover:fill-white hover:bg-rojo hover:text-white
-                        flex gap-4 justify-start items-center rounded-r-full p-4 mr-4'">
+                    flex gap-4 justify-start items-center rounded-r-full p-4 mr-4'">
                         <PooIcon size={32} />
-                        <p className='text-2xl font-medium'>Vicerrectoria</p>
+                        <p className='text-2xl font-medium'>Publicaciones</p>
                     </button>
                 )}
             </div>
             <div className='flex flex-col gap-2 w-full mr-4'>
                 <h5 className='text-stone-600 text-xl px-8'>Cuenta</h5>
-                <Link to={'/'} className='duration-300 fill-rojo stroke-rojo hover:stroke-white hover:fill-white hover:bg-rojo hover:text-white
-                flex gap-4 justify-start items-center rounded-r-full p-4 mr-4'>
+                <button onClick={() => onOptionChange('notificaciones')} className="className='duration-300 fill-rojo stroke-rojo hover:stroke-white hover:fill-white hover:bg-rojo hover:text-white
+                flex gap-4 justify-start items-center rounded-r-full p-4 mr-4'">
                     <BellIcon size={32} />
                     <p className='text-2xl font-medium'>Notificaciones</p>
-                </Link>
+                </button>
                 <Link to={'/'} className='duration-300 fill-rojo stroke-rojo hover:stroke-white hover:fill-white hover:bg-rojo hover:text-white
                 flex gap-4 justify-start items-center rounded-r-full p-4 mr-4'>
                     <ConfigIcon size={32} />
