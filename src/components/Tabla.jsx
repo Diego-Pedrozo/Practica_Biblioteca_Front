@@ -5,6 +5,7 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import FormularioEstado from './FormularioEstado';
 import FormularioNotificacion from './FormularioNotificacion'
+import { DownloadIcon, SendIcon, DeclineIcon } from '../assets/svg/SvgIcon';
 
 const Table = ({ userData, selectedOption }) => {
     const user_type = userData.information.user_type;
@@ -130,6 +131,29 @@ const Table = ({ userData, selectedOption }) => {
         } catch (error) {
             alert('Error')
             console.error('Error:', error);
+        }
+    };
+
+    const generarReporte = async (params) => {
+        try {
+            const token = localStorage.getItem('authToken');
+            const response = await axios.get('http://127.0.0.1:8000/api/materialbibliografico/solicitud/generar_reporte/', {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+                params: params,
+                responseType: 'blob'
+            });
+
+            const url = window.URL.createObjectURL(new Blob([response.data]));
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', 'reporte_solicitudes.xlsx');
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        } catch (error) {
+            console.error('Error al generar el reporte:', error);
         }
     };
 
@@ -439,26 +463,26 @@ const Table = ({ userData, selectedOption }) => {
                 </tbody>
             </table>
             <div className="flex justify-between mt-4">
-                <button className="bg-black text-white py-2 px-4 rounded flex items-center">
-                    <span className="material-icons mr-2">Icono</span>
+                <button onClick={() => generarReporte({ facultad: facultad, programa: programa, estado: estado, nivel_revision: nivelRevision })} className="bg-black text-white py-2 px-4 rounded flex items-center font-bold stroke-white fill-white gap-2 duration-300 hover:scale-105">
+                    <DownloadIcon size={32} />
                     Descargar
                 </button>
-                <div className="flex">
+                <div className="flex gap-5">
                     {showRechazarButton && (
-                        <button onClick={() => rechazarSolicitudes(selectedSolicitudes)} className="bg-gray-400 text-white py-2 px-4 rounded mr-2">
-                            <span className="material-icons mr-2">Icono</span>
+                        <button onClick={() => rechazarSolicitudes(selectedSolicitudes)} className="bg-gray-400 text-white py-2 px-4 rounded flex items-center font-bold stroke-white fill-white gap-2 duration-300 hover:scale-105">
+                            <DeclineIcon size={32} />
                             Rechazar
                         </button>
                     )}
                     {user_type !== '6' && (
-                        <button onClick={() => enviarSolicitudes(selectedSolicitudes)} className="bg-rojo text-white py-2 px-4 rounded flex items-center">
-                            <span className="material-icons mr-2">Icono</span>
+                        <button onClick={() => enviarSolicitudes(selectedSolicitudes)} className="bg-rojo text-white py-2 px-4 rounded flex items-center font-bold stroke-white fill-white gap-2 duration-300 hover:scale-105">
+                            <SendIcon size={32} />
                             {!showRechazarButton ? 'Enviar seleccionadas' : 'Adquirir y comunicar'}
                         </button>
                     )}
                     {user_type === '6' && (
-                        <button onClick={() => formNotificacion()} className="bg-rojo text-white py-2 px-4 rounded flex items-center">
-                            <span className="material-icons mr-2">Icono</span>
+                        <button onClick={() => formNotificacion()} className="bg-rojo text-white py-2 px-4 rounded flex items-center font-bold stroke-white fill-white gap-2 duration-300 hover:scale-105">
+                            <SendIcon size={32} />
                             {!showRechazarButton ? 'Enviar seleccionadas' : 'Adquirir y comunicar'}
                         </button>
                     )}
