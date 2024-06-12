@@ -2,6 +2,7 @@ import { PooIcon, BellIcon, ConfigIcon } from '../assets/svg/SvgIcon';
 import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import { useSession } from '../hooks/SessionContext';
+import toast from 'react-hot-toast';
 
 function Sidebar({ onOptionChange, userData }) {
 
@@ -12,6 +13,7 @@ function Sidebar({ onOptionChange, userData }) {
         dispatch({
             type: 'LOGOUT',
         });
+        toast.success('Sesión finalizada')
     }
 
     const roles = {

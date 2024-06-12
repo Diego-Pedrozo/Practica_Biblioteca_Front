@@ -2,6 +2,7 @@ import { useState } from "react";
 import data from '../utils/programas.json';
 import axios from "axios";
 import PropTypes from 'prop-types';
+import toast from "react-hot-toast";
 
 FormularioSolicitud.propTypes = {
     closeForm: PropTypes.func.isRequired
@@ -111,18 +112,16 @@ function FormularioSolicitud({ closeForm }) {
                 .then(response => {
                     // Maneja la respuesta del servidor si es necesario
                     closeForm()
-                    alert(response.data.mensaje);
+                    toast.success(response.data.mensaje)
                 })
                 .catch(error => {
                     // Maneja el error si la solicitud falla
                     closeForm()
-                    alert(error.data);
-
+                    toast.error(error.data.mensaje)
                 });
         } else {
-            console.log(formValid);
             setFormValid(false);
-            alert('Por favor complete todos los campos obligatorios.');
+            toast.error('Por favor complete todos los campos')
         }
     };
 

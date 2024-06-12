@@ -4,6 +4,8 @@ import Publicacion from './Publicacion';
 import FormularioPublicacion from './FormularioPublicacion';
 import { useNavigate } from 'react-router-dom';
 import { useSession } from '../hooks/SessionContext';
+import toast from 'react-hot-toast';
+import { AddIcon } from '../assets/svg/SvgIcon';
 
 const ControlPublicacion = () => {
 
@@ -52,12 +54,11 @@ const ControlPublicacion = () => {
                     Authorization: `Bearer ${token}`,
                 },
             });
-            alert('Publicación eliminada')
+            toast.success(response.data.mensaje)
             setReloadData(Date.now())
             return response.data;
         } catch (error) {
-            console.error('Error al eliminar la publicación:', error);
-            alert('Error al eliminar la publicación')
+            toast.error(error.data.mensaje)
             setError(error.message);
         }
 
@@ -70,7 +71,6 @@ const ControlPublicacion = () => {
                 setPublicaciones(publicacionesResponse.reverse());
                 setLoading(false);
             } catch (error) {
-                console.error('Error al obtener los datos:', error);
                 setError(error.message);
                 setLoading(false);
                 navigate('/')
@@ -89,9 +89,8 @@ const ControlPublicacion = () => {
 
     return (
         <div className={`${isDashboard ? 'ml-80 mr-8 mt-32' : 'ml-8 mr-8 mt-32'}`}>
-            <button onClick={() => openFormPublicacion()} className="fixed bottom-5 right-5 bg-rojo text-white py-2 px-4 rounded items-center w-fit duration-300 hover:scale-105 font-bold">
-                <span className="material-icons mr-2">Icono</span>
-                +
+            <button onClick={() => openFormPublicacion()} className="fixed bottom-5 right-5 bg-rojo text-white py-2 px-4 rounded items-center w-fit duration-300 hover:scale-105 font-bold stroke-white fill-white">
+                <AddIcon size={32} />
             </button>
             <div className="bg-white border shadow-md rounded-lg max-w-fit py-6 px-10 mx-auto flex flex-col items-center">
                 <h2 className="text-rojo text-3xl font-bold mb-6 text-center">{isDashboard ? 'Gestión de publicaciones' : 'Publicaciones'}</h2>

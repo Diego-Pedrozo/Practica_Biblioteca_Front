@@ -6,6 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import FormularioEstado from './FormularioEstado';
 import FormularioNotificacion from './FormularioNotificacion'
 import { DownloadIcon, SendIcon, DeclineIcon } from '../assets/svg/SvgIcon';
+import toast from 'react-hot-toast';
 
 const Table = ({ userData, selectedOption }) => {
     const user_type = userData.information.user_type;
@@ -60,16 +61,15 @@ const Table = ({ userData, selectedOption }) => {
             const data = {
                 "estado": nuevoEstado,
             };
-            await axios.patch(`http://127.0.0.1:8000/api/materialbibliografico/solicitud/${id}/`, data, {
+            const response = await axios.patch(`http://127.0.0.1:8000/api/materialbibliografico/solicitud/${id}/`, data, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },
             });
-            alert('Estado actualizado')
+            toast.success(response.data.mensaje)
             setReloadData(Date.now())
         } catch (error) {
-            alert('No se puedo actualizar el estado')
-            console.error('Error al actualizar el estado:', error);
+            toast.error('Error al actualizar el estado')
         }
     }
 
@@ -102,16 +102,15 @@ const Table = ({ userData, selectedOption }) => {
             const data = {
                 "ids_solicitudes": ids_solicitudes,
             };
-            await axios.post(`http://127.0.0.1:8000/api/materialbibliografico/solicitud/enviar_solicitudes/`, data, {
+            const response = await axios.post(`http://127.0.0.1:8000/api/materialbibliografico/solicitud/enviar_solicitudes/`, data, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },
             });
-            alert('Solicitudes enviadas')
+            toast.success('Solicitudes enviadas')
             setReloadData(Date.now())
         } catch (error) {
-            alert('Error')
-            console.error('Error:', error);
+            toast.error('Error al enviar solicitudes, seleccionelas y vuelva a intentar')
         }
     };
 
@@ -121,16 +120,15 @@ const Table = ({ userData, selectedOption }) => {
             const data = {
                 "ids_solicitudes": ids_solicitudes,
             };
-            await axios.post(`http://127.0.0.1:8000/api/materialbibliografico/solicitud/rechazar_solicitudes/`, data, {
+            const response = await axios.post(`http://127.0.0.1:8000/api/materialbibliografico/solicitud/rechazar_solicitudes/`, data, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },
             });
-            alert('Solicitudes rechazadas')
+            toast.success('Solicitudes rechazadas')
             setReloadData(Date.now())
         } catch (error) {
-            alert('Error')
-            console.error('Error:', error);
+            toast.error('Error al rechazar solicitudes, seleccionelas y vuelva a intentar')
         }
     };
 
@@ -152,8 +150,9 @@ const Table = ({ userData, selectedOption }) => {
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
+            toast.success('Reporte generado')
         } catch (error) {
-            console.error('Error al generar el reporte:', error);
+            toast.error('Error al generar el reporte')
         }
     };
 
@@ -168,7 +167,6 @@ const Table = ({ userData, selectedOption }) => {
                 setSelectedSolicitudes([])
                 setLoading(false);
             } catch (error) {
-                console.error('Error al obtener los datos:', error);
                 setError(error.message);
                 setLoading(false);
                 navigate('/')

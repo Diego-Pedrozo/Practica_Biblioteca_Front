@@ -3,6 +3,7 @@ import axios from "axios";
 import { useNavigate } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import { useSession } from "../hooks/SessionContext";
+import toast from 'react-hot-toast';
 
 FormularioLogin.propTypes = {
     closeForm: PropTypes.func.isRequired,
@@ -39,16 +40,14 @@ function FormularioLogin({ closeForm }) {
                     });
                     closeForm()
                     navigate('/dashboard');
+                    toast.success('Sesión iniciada')
                 })
                 .catch(error => {
-                    console.log(error);
-                    alert('Credenciales incorrectas');
-
+                    toast.error('Credenciales incorrectas')
                 });
         } else {
-            console.log(formValid);
             setFormValid(false);
-            alert('Por favor complete todos los campos obligatorios.');
+            toast.error('Por favor complete todos los campos')
         }
     };
 

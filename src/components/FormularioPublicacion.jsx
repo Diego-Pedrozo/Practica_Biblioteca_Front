@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import axios from 'axios';
 import PropTypes from 'prop-types';
+import toast from 'react-hot-toast';
 
 const FormularioPublicacion = ({ onClose }) => {
     const [imagen, setImagen] = useState(null);
@@ -25,12 +26,10 @@ const FormularioPublicacion = ({ onClose }) => {
                     Authorization: `Bearer ${token}`,
                 },
             });
-            console.log(response.data);
             onClose();
-            alert('Publicación creada')
+            toast.success(response.data.mensaje)
         } catch (error) {
-            alert('Error al crear la publicación')
-            console.error('Error al crear la publicación:', error);
+            toast.error('Error al crear la publicación')
         }
     };
 

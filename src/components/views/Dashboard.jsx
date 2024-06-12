@@ -30,7 +30,6 @@ function Dashboard() {
                 setUserData(userDataResponse.data[0]);
                 setLoading(false);
             } catch (error) {
-                console.error('Error al obtener los datos:', error);
                 setError(error.message);
                 setLoading(false);
                 navigate('/')

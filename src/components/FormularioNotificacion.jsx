@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import axios from 'axios';
 import PropTypes from 'prop-types';
+import toast from 'react-hot-toast';
 
 const FormularioNotificacion = ({ solicitudes, onClose }) => {
     const [descripcion, setDescripcion] = useState('');
@@ -12,23 +13,20 @@ const FormularioNotificacion = ({ solicitudes, onClose }) => {
         const token = localStorage.getItem('authToken');
         const formData = new FormData();
         formData.append('descripcion', descripcion);
-        if (archivo) {
-            formData.append('archivo', archivo);
-        }
-        formData.append('ids_solicitudes', JSON.stringify(solicitudes));
-
         try {
+            if (archivo) {
+                formData.append('archivo', archivo);
+            }
+            formData.append('ids_solicitudes', JSON.stringify(solicitudes));
             const response = await axios.post('http://127.0.0.1:8000/api/materialbibliografico/notificacion/', formData, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },
             });
-            console.log(response.data);
             onClose();
-            alert('Notificacio enviada')
+            toast.success('Notificación enviada')
         } catch (error) {
-            alert('Error al enviar la notificacion')
-            console.error('Error al enviar la notificacion:', error);
+            toast.error('Error al enviar la notificación, seleccionelas y vuelva a intentar')
         }
     };
 
@@ -66,7 +64,7 @@ const FormularioNotificacion = ({ solicitudes, onClose }) => {
 
 FormularioNotificacion.propTypes = {
     solicitudes: PropTypes.array.isRequired,
-    onClose: PropTypes.string,
+    onClose: PropTypes.func,
 };
 
 

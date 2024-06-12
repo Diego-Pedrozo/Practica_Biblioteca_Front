@@ -6,6 +6,7 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { useEffect } from 'react';
 import { useSession } from './hooks/SessionContext'
+import { Toaster } from 'react-hot-toast';
 
 function App() {
 
@@ -28,7 +29,6 @@ function App() {
         dispatch({
           type: 'LOGOUT',
         });
-        console.error('Error al obtener los datos:', error);
         navigate('/')
       }
     };
@@ -44,6 +44,7 @@ function App() {
           <Route path='/' element={<Home />} />
           <Route path='/dashboard' element={<Dashboard />} />
         </Routes>
+        <Toaster />
       </div>
     </>
   )
