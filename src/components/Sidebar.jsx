@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import { useSession } from '../hooks/SessionContext';
 import toast from 'react-hot-toast';
 
-function Sidebar({ onOptionChange, userData }) {
+function Sidebar({ onOptionChange, userData, selectedOption }) {
 
     const { dispatch } = useSession();
 
@@ -68,14 +68,14 @@ function Sidebar({ onOptionChange, userData }) {
         <nav className='fixed left-0 flex flex-col justify-between w-72 border-r-2 z-10 bg-white h-full top-0 py-4'>
             <div className='flex flex-col gap-2 w-full mr-4 mt-24'>
                 <h5 className='text-stone-600 text-xl px-8'>Dashboard</h5>
-                <button onClick={() => onOptionChange('solicitudes')} className="className='duration-300 fill-rojo stroke-rojo hover:stroke-white hover:fill-white hover:bg-rojo hover:text-white
-                flex gap-4 justify-start items-center rounded-r-full p-4 mr-4'">
+                <button onClick={() => onOptionChange('solicitudes')} className={`duration-300 fill-rojo stroke-rojo flex gap-4 justify-start items-center rounded-r-full p-4 mr-4 
+                    ${selectedOption === 'solicitudes' ? 'bg-rojo text-white stroke-white fill-white' : 'hover:stroke-white hover:fill-white hover:bg-rojo hover:text-white'}`}>
                     <PooIcon size={32} />
                     <p className='text-2xl font-medium'>Solicitudes</p>
                 </button>
                 {userData.information.user_type === '5' && (
-                    <button onClick={() => onOptionChange('vicerrectoria')} className="className='duration-300 fill-rojo stroke-rojo hover:stroke-white hover:fill-white hover:bg-rojo hover:text-white
-                    flex gap-4 justify-start items-center rounded-r-full p-4 mr-4'">
+                    <button onClick={() => onOptionChange('publicaciones')} className={`duration-300 fill-rojo stroke-rojo flex gap-4 justify-start items-center rounded-r-full p-4 mr-4
+                        ${selectedOption === 'publicaciones' ? 'bg-rojo text-white stroke-white fill-white' : 'hover:stroke-white hover:fill-white hover:bg-rojo hover:text-white'}`}>
                         <PooIcon size={32} />
                         <p className='text-2xl font-medium'>Publicaciones</p>
                     </button>
@@ -83,16 +83,16 @@ function Sidebar({ onOptionChange, userData }) {
             </div>
             <div className='flex flex-col gap-2 w-full mr-4'>
                 <h5 className='text-stone-600 text-xl px-8'>Cuenta</h5>
-                <button onClick={() => onOptionChange('notificaciones')} className="className='duration-300 fill-rojo stroke-rojo hover:stroke-white hover:fill-white hover:bg-rojo hover:text-white
-                flex gap-4 justify-start items-center rounded-r-full p-4 mr-4'">
+                <button onClick={() => onOptionChange('notificaciones')} className={`duration-300 fill-rojo stroke-rojo flex gap-4 justify-start items-center rounded-r-full p-4 mr-4"
+                ${selectedOption === 'notificaciones' ? 'bg-rojo text-white stroke-white fill-white' : 'hover:stroke-white hover:fill-white hover:bg-rojo hover:text-white'}`}>
                     <BellIcon size={32} />
                     <p className='text-2xl font-medium'>Notificaciones</p>
                 </button>
-                <Link to={'/'} className='duration-300 fill-rojo stroke-rojo hover:stroke-white hover:fill-white hover:bg-rojo hover:text-white
-                flex gap-4 justify-start items-center rounded-r-full p-4 mr-4'>
+                <button onClick={() => onOptionChange('configuracion')} className={`duration-300 fill-rojo stroke-rojo flex gap-4 justify-start items-center rounded-r-full p-4 mr-4"
+                ${selectedOption === 'configuracion' ? 'bg-rojo text-white stroke-white fill-white' : 'hover:stroke-white hover:fill-white hover:bg-rojo hover:text-white'}`}>
                     <ConfigIcon size={32} />
                     <p className='text-2xl font-medium'>Configuración</p>
-                </Link>
+                </button>
             </div>
             <div className='flex flex-col items-center'>
                 <img src="https://ps.w.org/user-avatar-reloaded/assets/icon-256x256.png?rev=2540745" alt="" className='w-1/3' />
@@ -111,6 +111,7 @@ function Sidebar({ onOptionChange, userData }) {
 Sidebar.propTypes = {
     onOptionChange: PropTypes.func.isRequired,
     userData: PropTypes.object.isRequired,
+    selectedOption: PropTypes.string.isRequired,
 };
 
 export default Sidebar;

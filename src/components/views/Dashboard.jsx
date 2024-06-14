@@ -5,6 +5,7 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import Notificacion from '../Notificacion';
 import ControlPublicacion from '../ControlPublicacion';
+import Configuracion from '../Configuracion';
 
 function Dashboard() {
 
@@ -37,7 +38,7 @@ function Dashboard() {
         };
 
         fetchData();
-    }, []);
+    }, [selectedOption]);
 
     if (loading) {
         return <div>Cargando...</div>;
@@ -50,11 +51,12 @@ function Dashboard() {
     return (
         <>
             <div className='flex justify-center'>
-                <Sidebar onOptionChange={handleOptionChange} userData={userData} />
+                <Sidebar onOptionChange={handleOptionChange} userData={userData} selectedOption={selectedOption} />
                 <div className='flex-1'>
                     {selectedOption === 'solicitudes' && <Tabla userData={userData} selectedOption={selectedOption} />}
-                    {selectedOption === 'vicerrectoria' && <ControlPublicacion userData={userData} selectedOption={selectedOption} />}
+                    {selectedOption === 'publicaciones' && <ControlPublicacion userData={userData} selectedOption={selectedOption} />}
                     {selectedOption === 'notificaciones' && <Notificacion userData={userData} selectedOption={selectedOption} />}
+                    {selectedOption === 'configuracion' && <Configuracion userData={userData} selectedOption={selectedOption} />}
                 </div>
             </div>
         </>

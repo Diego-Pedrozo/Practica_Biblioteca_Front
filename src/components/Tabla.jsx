@@ -78,7 +78,7 @@ const Table = ({ userData, selectedOption }) => {
         if (option === 'solicitudes') {
             endpoint = 'http://127.0.0.1:8000/api/materialbibliografico/solicitud/solicitudes_revisadas/';
         }
-        if (option === 'vicerrectoria') {
+        if (option === 'publicaciones') {
             endpoint = 'http://127.0.0.1:8000/api/materialbibliografico/solicitud/solicitudes_revisadas/';
         }
 
@@ -102,7 +102,7 @@ const Table = ({ userData, selectedOption }) => {
             const data = {
                 "ids_solicitudes": ids_solicitudes,
             };
-            const response = await axios.post(`http://127.0.0.1:8000/api/materialbibliografico/solicitud/enviar_solicitudes/`, data, {
+            await axios.post(`http://127.0.0.1:8000/api/materialbibliografico/solicitud/enviar_solicitudes/`, data, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },
@@ -120,7 +120,7 @@ const Table = ({ userData, selectedOption }) => {
             const data = {
                 "ids_solicitudes": ids_solicitudes,
             };
-            const response = await axios.post(`http://127.0.0.1:8000/api/materialbibliografico/solicitud/rechazar_solicitudes/`, data, {
+            await axios.post(`http://127.0.0.1:8000/api/materialbibliografico/solicitud/rechazar_solicitudes/`, data, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },
