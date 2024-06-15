@@ -7,6 +7,7 @@ import FormularioEstado from './FormularioEstado';
 import FormularioNotificacion from './FormularioNotificacion'
 import { DownloadIcon, SendIcon, DeclineIcon } from '../assets/svg/SvgIcon';
 import toast from 'react-hot-toast';
+import { Tooltip } from 'react-tooltip'
 
 const Table = ({ userData, selectedOption }) => {
     const user_type = userData.information.user_type;
@@ -279,6 +280,35 @@ const Table = ({ userData, selectedOption }) => {
     return (
         <div className="pt-32 pl-80 pr-8 w-screen">
             <h1 className="text-2xl text-center text-rojo font-bold mb-4">Solicitudes</h1>
+            <div className="flex items-center justify-center mb-4 border rounded w-fit p-4 m-auto">
+                <div className="flex items-center mr-4">
+                    <span className="inline-block w-4 h-4 rounded-full bg-green-500 mr-2"></span>
+                    <span>Existente</span>
+                </div>
+                <div className="flex items-center mr-4">
+                    <span className="inline-block w-4 h-4 rounded-full bg-yellow-500 mr-2"></span>
+                    <span>En trámite</span>
+                </div>
+                <div className="flex items-center mr-4">
+                    <span className="inline-block w-4 h-4 rounded-full bg-red-500 mr-2"></span>
+                    <span>Inexistente</span>
+                </div>
+                <div className="flex items-center">
+                    <span className="inline-block w-4 h-4 rounded-full bg-gray-500 mr-2"></span>
+                    <span>Sin revisar</span>
+                </div>
+                <div className="flex items-center">
+                    <span
+                        data-tooltip-id="info"
+                        data-tooltip-content='Contenido de la anotación'
+                        data-tooltip-place="top"
+                        className="inline-block ml-2 mr-2 p-1  cursor-pointer border rounded-full"
+                    >?</span>
+                    <span>Motivo de la solicitud del libro</span>
+                </div>
+
+
+            </div>
             <div className="flex justify-between my-4 h-24">
                 <div className='flex flex-col justify-between'>
                     <label className="block text-rojo font-semibold">
@@ -417,7 +447,18 @@ const Table = ({ userData, selectedOption }) => {
                             <td className="py-2 px-4 border-b text-center">{solicitud.libro.editorial}</td>
                             <td className="py-2 px-4 border-b text-center">{solicitud.libro.edicion}</td>
                             <td className="py-2 px-4 border-b text-center">{solicitud.libro.ejemplares}</td>
-                            <td className="py-2 px-4 border-b text-center">{solicitud.libro.fecha_publicacion}</td>
+                            <td className="py-2 px-4 border-b text-center">{solicitud.libro.fecha_publicacion}
+                                <span
+                                    data-tooltip-id="info"
+                                    data-tooltip-content={
+                                        'Anotación: ' + solicitud.anotacion
+                                    }
+                                    data-tooltip-place="top"
+                                    className="inline-block ml-2 p-1 cursor-pointer border rounded-full"
+                                >
+                                    ?
+                                </span>
+                            </td>
                             <td className="py-2 px-4 border-b text-center">{solicitud.libro.idioma}</td>
                             <td className="py-2 px-4 border-b text-center">
                                 {
@@ -460,6 +501,7 @@ const Table = ({ userData, selectedOption }) => {
                     ))}
                 </tbody>
             </table>
+            <Tooltip id="info" />
             <div className="flex justify-between mt-4">
                 <button onClick={() => generarReporte({ facultad: facultad, programa: programa, estado: estado, nivel_revision: nivelRevision })} className="bg-black text-white py-2 px-4 rounded flex items-center font-bold stroke-white fill-white gap-2 duration-300 hover:scale-105">
                     <DownloadIcon size={32} />
@@ -473,20 +515,28 @@ const Table = ({ userData, selectedOption }) => {
                         </button>
                     )}
                     {user_type !== '6' && (
-                        <button onClick={() => enviarSolicitudes(selectedSolicitudes)} className="bg-rojo text-white py-2 px-4 rounded flex items-center font-bold stroke-white fill-white gap-2 duration-300 hover:scale-105">
+                        <button onClick={() => enviarSolicitudes(selectedSolicitudes)} className="bg-rojo text-white py-2 px-4 rounded flex items-center font-bold stroke-white fill-white gap-2 duration-300 hover:scale-105"
+                            data-tooltip-id="info"
+                            data-tooltip-content={user_type === '5' ? 'Para enviar solicitudes colocar las recibidas e inexistentes' : 'Para enviar solicitudes colocar las recibidas y sin revisar'}
+                            data-tooltip-place="top"
+                        >
                             <SendIcon size={32} />
                             {!showRechazarButton ? 'Enviar seleccionadas' : 'Adquirir y comunicar'}
                         </button>
                     )}
                     {user_type === '6' && (
-                        <button onClick={() => formNotificacion()} className="bg-rojo text-white py-2 px-4 rounded flex items-center font-bold stroke-white fill-white gap-2 duration-300 hover:scale-105">
+                        <button onClick={() => formNotificacion()} className="bg-rojo text-white py-2 px-4 rounded flex items-center font-bold stroke-white fill-white gap-2 duration-300 hover:scale-105"
+                            data-tooltip-id="info"
+                            data-tooltip-content='Para aprobar solicitudes colocar las recibidas e inexistentes'
+                            data-tooltip-place="top"
+                        >
                             <SendIcon size={32} />
                             {!showRechazarButton ? 'Enviar seleccionadas' : 'Adquirir y comunicar'}
                         </button>
                     )}
                 </div>
             </div>
-        </div>
+        </div >
     );
 };
 
