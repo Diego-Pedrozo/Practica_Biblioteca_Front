@@ -3,6 +3,7 @@ import data from '../utils/programas.json';
 import axios from "axios";
 import PropTypes from 'prop-types';
 import toast from "react-hot-toast";
+import config from "../../config";
 
 FormularioSolicitud.propTypes = {
     closeForm: PropTypes.func.isRequired
@@ -108,7 +109,7 @@ function FormularioSolicitud({ closeForm }) {
                     "solicitante": solicitante
                 }
             };
-            axios.post('http://127.0.0.1:8000/api/materialbibliografico/solicitud_public/', formData)
+            axios.post(`${config.backendUrl}/api/materialbibliografico/solicitud_public/`, formData)
                 .then(response => {
                     // Maneja la respuesta del servidor si es necesario
                     closeForm()

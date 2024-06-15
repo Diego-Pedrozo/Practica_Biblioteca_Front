@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import config from '../../config';
 
 const Notificacion = () => {
 
@@ -23,7 +24,7 @@ const Notificacion = () => {
     };
 
     const fetchNotificaciones = async (token) => {
-        const response = await axios.get('http://127.0.0.1:8000/api/materialbibliografico/notificacion/', {
+        const response = await axios.get(`${config.backendUrl}/api/materialbibliografico/notificacion/`, {
             headers: {
                 Authorization: `Bearer ${token}`,
             },

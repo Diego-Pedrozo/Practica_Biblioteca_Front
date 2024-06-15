@@ -2,6 +2,7 @@ import { useState } from 'react';
 import axios from 'axios';
 import PropTypes from 'prop-types';
 import toast from 'react-hot-toast';
+import config from '../../config';
 
 const FormularioPublicacion = ({ onClose }) => {
     const [imagen, setImagen] = useState(null);
@@ -21,7 +22,7 @@ const FormularioPublicacion = ({ onClose }) => {
         formData.append('descripcion', descripcion);
 
         try {
-            const response = await axios.post('http://127.0.0.1:8000/api/materialbibliografico/publicacion/', formData, {
+            const response = await axios.post(`${config.backendUrl}/api/materialbibliografico/publicacion/`, formData, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },

@@ -6,6 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import Notificacion from '../Notificacion';
 import ControlPublicacion from '../ControlPublicacion';
 import Configuracion from '../Configuracion';
+import config from '../../../config';
 
 function Dashboard() {
 
@@ -23,7 +24,7 @@ function Dashboard() {
         const fetchData = async () => {
             try {
                 const token = localStorage.getItem('authToken');
-                const userDataResponse = await axios.get('http://127.0.0.1:8000/api/user/', {
+                const userDataResponse = await axios.get(`${config.backendUrl}/api/user/`, {
                     headers: {
                         Authorization: `Bearer ${token}`,
                     },

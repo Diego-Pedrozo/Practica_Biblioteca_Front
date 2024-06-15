@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import axios from "axios";
 import toast from "react-hot-toast";
 import { useNavigate } from 'react-router-dom';
+import config from "../../config";
 
 function Configuracion({ userData }) {
 
@@ -37,7 +38,7 @@ function Configuracion({ userData }) {
             }
         }
         try {
-            const response = await axios.patch(`http://127.0.0.1:8000/api/user/${userData.id}/`, formData, {
+            const response = await axios.patch(`${config.backendUrl}/api/user/${userData.id}/`, formData, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },

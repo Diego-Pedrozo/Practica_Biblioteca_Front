@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import { useSession } from "../hooks/SessionContext";
 import toast from 'react-hot-toast';
+import config from "../../config";
 
 FormularioLogin.propTypes = {
     closeForm: PropTypes.func.isRequired,
@@ -31,7 +32,7 @@ function FormularioLogin({ closeForm }) {
                 "username": email,
                 "password": password,
             };
-            axios.post('http://127.0.0.1:8000/api/auth/token/', formData)
+            axios.post(`${config.backendUrl}/api/auth/token/`, formData)
                 .then(response => {
                     const token = response.data.access;
                     localStorage.setItem('authToken', token);

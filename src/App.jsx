@@ -7,6 +7,7 @@ import { useNavigate } from 'react-router-dom';
 import { useEffect } from 'react';
 import { useSession } from './hooks/SessionContext'
 import { Toaster } from 'react-hot-toast';
+import config from '../config';
 
 function App() {
 
@@ -17,7 +18,7 @@ function App() {
     const fetchData = async () => {
       try {
         const token = localStorage.getItem('authToken');
-        const response = await axios.get('http://127.0.0.1:8000/api/user/', {
+        const response = await axios.get(`${config.backendUrl}/api/user/`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },

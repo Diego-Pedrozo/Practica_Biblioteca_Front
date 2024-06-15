@@ -8,6 +8,7 @@ import FormularioNotificacion from './FormularioNotificacion'
 import { DownloadIcon, SendIcon, DeclineIcon } from '../assets/svg/SvgIcon';
 import toast from 'react-hot-toast';
 import { Tooltip } from 'react-tooltip'
+import config from '../../config';
 
 const Table = ({ userData, selectedOption }) => {
     const user_type = userData.information.user_type;
@@ -62,7 +63,7 @@ const Table = ({ userData, selectedOption }) => {
             const data = {
                 "estado": nuevoEstado,
             };
-            const response = await axios.patch(`http://127.0.0.1:8000/api/materialbibliografico/solicitud/${id}/`, data, {
+            const response = await axios.patch(`${config.backendUrl}/api/materialbibliografico/solicitud/${id}/`, data, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },
@@ -77,10 +78,10 @@ const Table = ({ userData, selectedOption }) => {
     const fetchSolicitudes = async (option, token) => {
         let endpoint = '';
         if (option === 'solicitudes') {
-            endpoint = 'http://127.0.0.1:8000/api/materialbibliografico/solicitud/solicitudes_revisadas/';
+            endpoint = `${config.backendUrl}/api/materialbibliografico/solicitud/solicitudes_revisadas/`;
         }
         if (option === 'publicaciones') {
-            endpoint = 'http://127.0.0.1:8000/api/materialbibliografico/solicitud/solicitudes_revisadas/';
+            endpoint = `${config.backendUrl}/api/materialbibliografico/solicitud/solicitudes_revisadas/`;
         }
 
         const response = await axios.get(endpoint, {
@@ -103,7 +104,7 @@ const Table = ({ userData, selectedOption }) => {
             const data = {
                 "ids_solicitudes": ids_solicitudes,
             };
-            await axios.post(`http://127.0.0.1:8000/api/materialbibliografico/solicitud/enviar_solicitudes/`, data, {
+            await axios.post(`${config.backendUrl}/api/materialbibliografico/solicitud/enviar_solicitudes/`, data, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },
@@ -121,7 +122,7 @@ const Table = ({ userData, selectedOption }) => {
             const data = {
                 "ids_solicitudes": ids_solicitudes,
             };
-            await axios.post(`http://127.0.0.1:8000/api/materialbibliografico/solicitud/rechazar_solicitudes/`, data, {
+            await axios.post(`${config.backendUrl}/api/materialbibliografico/solicitud/rechazar_solicitudes/`, data, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },
@@ -136,7 +137,7 @@ const Table = ({ userData, selectedOption }) => {
     const generarReporte = async (params) => {
         try {
             const token = localStorage.getItem('authToken');
-            const response = await axios.get('http://127.0.0.1:8000/api/materialbibliografico/solicitud/generar_reporte/', {
+            const response = await axios.get(`${config.backendUrl}/api/materialbibliografico/solicitud/generar_reporte/`, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },

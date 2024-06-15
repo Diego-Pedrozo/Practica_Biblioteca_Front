@@ -2,6 +2,7 @@ import { useState } from 'react';
 import axios from 'axios';
 import PropTypes from 'prop-types';
 import toast from 'react-hot-toast';
+import config from '../../config';
 
 const FormularioNotificacion = ({ solicitudes, onClose }) => {
     const [descripcion, setDescripcion] = useState('');
@@ -18,7 +19,7 @@ const FormularioNotificacion = ({ solicitudes, onClose }) => {
                 formData.append('archivo', archivo);
             }
             formData.append('ids_solicitudes', JSON.stringify(solicitudes));
-            const response = await axios.post('http://127.0.0.1:8000/api/materialbibliografico/notificacion/', formData, {
+            const response = await axios.post(`${config.backendUrl}/api/materialbibliografico/notificacion/`, formData, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },

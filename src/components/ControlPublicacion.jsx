@@ -6,6 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import { useSession } from '../hooks/SessionContext';
 import toast from 'react-hot-toast';
 import { AddIcon } from '../assets/svg/SvgIcon';
+import config from '../../config.js'
 
 const ControlPublicacion = () => {
 
@@ -42,14 +43,14 @@ const ControlPublicacion = () => {
     };
 
     const fetchPublicaciones = async () => {
-        const response = await axios.get('http://127.0.0.1:8000/api/materialbibliografico/publicacion_public/');
+        const response = await axios.get(`${config.backendUrl}/api/materialbibliografico/publicacion_public/`);
         return response.data;
     };
 
     const deletePublicacion = async (id) => {
         try {
             const token = localStorage.getItem('authToken');
-            const response = await axios.delete(`http://127.0.0.1:8000/api/materialbibliografico/publicacion/${id}/`, {
+            const response = await axios.delete(`${config.backendUrl}/api/materialbibliografico/publicacion/${id}/`, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },
