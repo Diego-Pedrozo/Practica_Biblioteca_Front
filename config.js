@@ -1,5 +1,5 @@
 const config = {
-    backendUrl: 'http://127.0.0.1:8000'
+    backendUrl: 'https://practica-biblioteca-back.onrender.com'
 };
 
 export default config;
