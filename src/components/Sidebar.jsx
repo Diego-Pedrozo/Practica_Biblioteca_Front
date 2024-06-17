@@ -83,11 +83,13 @@ function Sidebar({ onOptionChange, userData, selectedOption }) {
             </div>
             <div className='flex flex-col gap-2 w-full mr-4'>
                 <h5 className='text-stone-600 text-xl px-8'>Cuenta</h5>
-                <button onClick={() => onOptionChange('notificaciones')} className={`duration-300 fill-rojo stroke-rojo flex gap-4 justify-start items-center rounded-r-full p-4 mr-4"
-                ${selectedOption === 'notificaciones' ? 'bg-rojo text-white stroke-white fill-white' : 'hover:stroke-white hover:fill-white hover:bg-rojo hover:text-white'}`}>
-                    <BellIcon size={32} />
-                    <p className='text-2xl font-medium'>Notificaciones</p>
-                </button>
+                {(userData.information.user_type === '5' || userData.information.user_type === '4') && (
+                    <button onClick={() => onOptionChange('notificaciones')} className={`duration-300 fill-rojo stroke-rojo flex gap-4 justify-start items-center rounded-r-full p-4 mr-4"
+                        ${selectedOption === 'notificaciones' ? 'bg-rojo text-white stroke-white fill-white' : 'hover:stroke-white hover:fill-white hover:bg-rojo hover:text-white'}`}>
+                        <BellIcon size={32} />
+                        <p className='text-2xl font-medium'>Notificaciones</p>
+                    </button>
+                )}
                 <button onClick={() => onOptionChange('configuracion')} className={`duration-300 fill-rojo stroke-rojo flex gap-4 justify-start items-center rounded-r-full p-4 mr-4"
                 ${selectedOption === 'configuracion' ? 'bg-rojo text-white stroke-white fill-white' : 'hover:stroke-white hover:fill-white hover:bg-rojo hover:text-white'}`}>
                     <ConfigIcon size={32} />
