@@ -504,7 +504,7 @@ const Table = ({ userData, selectedOption }) => {
             </table>
             <Tooltip id="info" />
             <div className="flex justify-between mt-4">
-                <button onClick={() => generarReporte({ facultad: facultad, programa: programa, estado: estado, nivel_revision: nivelRevision })} className="bg-black text-white py-2 px-4 rounded flex items-center font-bold stroke-white fill-white gap-2 duration-300 hover:scale-105">
+                <button onClick={() => generarReporte({ facultad: facultad, programa: programa, estado: estado, nivel_revision: nivelRevision, fecha_inicio: filter.fechaInicio, fecha_fin: filter.fechaFin })} className="bg-black text-white py-2 px-4 rounded flex items-center font-bold stroke-white fill-white gap-2 duration-300 hover:scale-105">
                     <DownloadIcon size={32} />
                     Descargar
                 </button>

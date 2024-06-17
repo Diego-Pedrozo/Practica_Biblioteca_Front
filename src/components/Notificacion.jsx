@@ -1,30 +1,21 @@
 import axios from 'axios';
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import config from '../../config';
+
+const pagesToShow = 5;  // Número de botones de página a mostrar a la vez
 
 const Notificacion = () => {
 
-    const navigate = useNavigate()
     const [notificaciones, setNotificaciones] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
     const [currentPage, setCurrentPage] = useState(1);
-    const notificacionesPerPage = 10;
+    const [totalPages, setTotalPages] = useState(1);
 
-    const indexOfLastNotificacion = currentPage * notificacionesPerPage;
-    const indexOfFirstNotificacion = indexOfLastNotificacion - notificacionesPerPage;
-    const currentNotificaciones = notificaciones.slice(indexOfFirstNotificacion, indexOfLastNotificacion);
 
-    const totalPages = Math.ceil(notificaciones.length / notificacionesPerPage);
-
-    const handleClick = (pageNumber) => {
-        setCurrentPage(pageNumber);
-    };
-
-    const fetchNotificaciones = async (token) => {
-        const response = await axios.get(`${config.backendUrl}/api/materialbibliografico/notificacion/`, {
+    const fetchNotificaciones = async (token, page) => {
+        const response = await axios.get(`${config.backendUrl}/api/materialbibliografico/notificacion/?page=${page}`, {
             headers: {
                 Authorization: `Bearer ${token}`,
             },
@@ -36,17 +27,53 @@ const Notificacion = () => {
         const fetchData = async () => {
             try {
                 const token = localStorage.getItem('authToken');
-                const notificacionesResponse = await fetchNotificaciones(token);
-                setNotificaciones(notificacionesResponse.reverse());
+                const notificacionesResponse = await fetchNotificaciones(token, currentPage);
+                setNotificaciones(notificacionesResponse.results);
+                setTotalPages(notificacionesResponse.total_pages);
                 setLoading(false);
             } catch (error) {
                 setError(error.message);
                 setLoading(false);
-                navigate('/')
             }
         }
         fetchData();
-    }, []);
+    }, [currentPage]);
+
+    const renderPageButtons = () => {
+        const pages = [];
+        const startPage = Math.max(1, currentPage - Math.floor(pagesToShow / 2));
+        const endPage = Math.min(totalPages, startPage + pagesToShow - 1);
+
+        if (currentPage > 1) {
+            pages.push(
+                <button key="prev" onClick={() => setCurrentPage(currentPage - 1)} className="mx-1 px-3 py-1 border rounded bg-white text-rojo">
+                    &laquo;
+                </button>
+            );
+        }
+
+        for (let i = startPage; i <= endPage; i++) {
+            pages.push(
+                <button
+                    key={i}
+                    onClick={() => setCurrentPage(i)}
+                    className={`mx-1 px-3 py-1 border rounded ${currentPage === i ? 'bg-rojo text-white' : 'bg-white text-rojo'}`}
+                >
+                    {i}
+                </button>
+            );
+        }
+
+        if (currentPage < totalPages) {
+            pages.push(
+                <button key="next" onClick={() => setCurrentPage(currentPage + 1)} className="mx-1 px-3 py-1 border rounded bg-white text-rojo">
+                    &raquo;
+                </button>
+            );
+        }
+
+        return pages;
+    };
 
     if (loading) {
         return <div className="pt-32 pl-80 pr-8 w-screen">Cargando...</div>;
@@ -60,7 +87,7 @@ const Notificacion = () => {
         <div className='ml-80 mr-8 mt-32'>
             <div className="bg-white border shadow-md rounded-lg max-w-4xl py-6 px-10 mx-auto">
                 <h2 className="text-rojo text-3xl font-bold mb-6 text-center">Notificaciones</h2>
-                {currentNotificaciones.map((notificacion, index) => (
+                {notificaciones.map((notificacion, index) => (
                     <div key={index} className="flex items-start mb-4">
                         <div className="w-12 h-12 flex-shrink-0 rounded-full bg-pink-200 flex items-center justify-center">
                             <svg
@@ -79,7 +106,7 @@ const Notificacion = () => {
                         <div className="ml-4 flex-1">
                             <p className="text-lg font-semibold text-gray-800 text-justify">{notificacion.descripcion}</p>
                             <div className='flex items-start'>
-                                <a href={notificacion.archivo} className="text-sm text-gray-500">Archivo adjunto</a>
+                                {notificacion.archivo && <a href={notificacion.archivo} className="text-sm text-gray-500">Archivo adjunto</a>}
                                 <div className="text-sm text-gray-500 ml-auto">{notificacion.fecha_notificacion}</div>
                             </div>
                         </div>
@@ -87,15 +114,7 @@ const Notificacion = () => {
                 ))}
             </div>
             <div className="flex justify-center mt-4 mb-4">
-                {Array.from({ length: totalPages }, (_, index) => (
-                    <button
-                        key={index + 1}
-                        onClick={() => handleClick(index + 1)}
-                        className={`mx-1 px-3 py-1 border rounded ${currentPage === index + 1 ? 'bg-rojo text-white' : 'bg-white text-rojo'}`}
-                    >
-                        {index + 1}
-                    </button>
-                ))}
+                {renderPageButtons()}
             </div>
         </div>
     );
