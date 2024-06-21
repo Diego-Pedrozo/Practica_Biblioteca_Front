@@ -127,7 +127,7 @@ const Propuestas = ({ userData }) => {
                         <div className="ml-4 flex-1">
                             <p className="text-lg font-semibold text-gray-800 text-justify">{propuesta.titulo}</p>
                             <div className='flex items-start'>
-                                {propuesta.url && <a href={propuesta.url} className="text-sm text-gray-500">Url excel</a>}
+                                {propuesta.url && <a href={propuesta.url} className="text-sm text-gray-500" target="_blank" rel="noopener noreferrer">Url excel</a>}
                                 <div className="text-sm text-gray-500 ml-auto">{propuesta.uploaded_at}</div>
                             </div>
                         </div>
