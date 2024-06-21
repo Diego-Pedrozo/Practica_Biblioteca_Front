@@ -7,6 +7,7 @@ import Notificacion from '../Notificacion';
 import ControlPublicacion from '../ControlPublicacion';
 import Configuracion from '../Configuracion';
 import config from '../../../config';
+import Propuestas from '../Propuestas';
 
 function Dashboard() {
 
@@ -58,6 +59,7 @@ function Dashboard() {
                     {selectedOption === 'publicaciones' && <ControlPublicacion userData={userData} selectedOption={selectedOption} />}
                     {selectedOption === 'notificaciones' && <Notificacion userData={userData} selectedOption={selectedOption} />}
                     {selectedOption === 'configuracion' && <Configuracion userData={userData} selectedOption={selectedOption} />}
+                    {selectedOption === 'propuestas' && <Propuestas userData={userData} selectedOption={selectedOption} />}
                 </div>
             </div>
         </>

@@ -80,6 +80,13 @@ function Sidebar({ onOptionChange, userData, selectedOption }) {
                         <p className='text-2xl font-medium'>Publicaciones</p>
                     </button>
                 )}
+                {(userData.information.user_type === '5' || userData.information.user_type === '4') && (
+                    <button onClick={() => onOptionChange('propuestas')} className={`duration-300 fill-rojo stroke-rojo flex gap-4 justify-start items-center rounded-r-full p-4 mr-4
+                        ${selectedOption === 'propuestas' ? 'bg-rojo text-white stroke-white fill-white' : 'hover:stroke-white hover:fill-white hover:bg-rojo hover:text-white'}`}>
+                        <PooIcon size={32} />
+                        <p className='text-2xl font-medium'>Propuestas</p>
+                    </button>
+                )}
             </div>
             <div className='flex flex-col gap-2 w-full mr-4'>
                 <h5 className='text-stone-600 text-xl px-8'>Cuenta</h5>
