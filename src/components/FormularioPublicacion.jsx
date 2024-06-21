@@ -63,7 +63,6 @@ const FormularioPublicacion = ({ onClose }) => {
                             type="file"
                             className="w-full p-2 border border-gray-300 rounded"
                             onChange={(e) => setImagen(e.target.files[0])}
-                            required
                         />
                     </div>
                     <div className="flex justify-end">
