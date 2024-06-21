@@ -5,10 +5,6 @@ import PropTypes from 'prop-types';
 import toast from "react-hot-toast";
 import config from "../../config";
 
-FormularioSolicitud.propTypes = {
-    closeForm: PropTypes.func.isRequired
-};
-
 function FormularioSolicitud({ closeForm }) {
 
     const [year, setYear] = useState('');
@@ -20,10 +16,10 @@ function FormularioSolicitud({ closeForm }) {
     const [idioma, setIdioma] = useState('');
     const [ejemplares, setEjemplares] = useState('');
     const [solicitante, setSolicitante] = useState('');
+    const [emailSolicitante, setEmailSolicitante] = useState('')
     const [facultad, setFacultad] = useState('');
     const [programa, setPrograma] = useState('');
-    const [anotacion, setAnotacion] = useState('');
-    const [formValid, setFormValid] = useState(false);
+    const [anotacion, setAnotacion] = useState('No aplica');
 
     const handleYearChange = (e) => {
         setYear(e.target.value);
@@ -59,6 +55,9 @@ function FormularioSolicitud({ closeForm }) {
     const handleSolicitanteChange = (e) => {
         setSolicitante(e.target.value);
     };
+    const handleEmailSolicitanteChange = (e) => {
+        setEmailSolicitante(e.target.value);
+    };
     const handleAnotacionChange = (e) => {
         setAnotacion(e.target.value);
     };
@@ -90,8 +89,7 @@ function FormularioSolicitud({ closeForm }) {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        if (titulo && autor && editorial && edicion && year && idioma && ejemplares && solicitante && facultad && programa) {
-            setFormValid(true);
+        if (titulo && autor && editorial && edicion && year && idioma && ejemplares && solicitante && emailSolicitante && facultad && programa) {
             const formData = {
                 "libro": {
                     "titulo": titulo,
@@ -106,28 +104,26 @@ function FormularioSolicitud({ closeForm }) {
                     "facultad": facultad,
                     "programa_academico": programa,
                     "anotacion": anotacion,
-                    "solicitante": solicitante
+                    "solicitante": solicitante,
+                    "email_solicitante": emailSolicitante
                 }
             };
             axios.post(`${config.backendUrl}/api/materialbibliografico/solicitud_public/`, formData)
                 .then(response => {
-                    // Maneja la respuesta del servidor si es necesario
                     closeForm()
                     toast.success(response.data.mensaje)
                 })
                 .catch(error => {
-                    // Maneja el error si la solicitud falla
                     closeForm()
-                    toast.error(error.data.mensaje)
+                    toast.error(error.response.data.mensaje)
                 });
         } else {
-            setFormValid(false);
             toast.error('Por favor complete todos los campos')
         }
     };
 
     return (
-        <div className="fixed bottom-20 right-5 bg-white p-6 rounded-lg shadow-lg w-96 h-3/6 border-2 border-red-500 overflow-auto" >
+        <div className="fixed bottom-20 right-5 bg-white p-6 rounded-lg shadow-lg w-96 h-3/6 border-2 border-rojo overflow-auto" >
             <h2 className="text-2xl mb-4 text-rojo font-bold text-center">Crear solicitud</h2>
             <form className="space-y-4" onSubmit={handleSubmit}>
                 <div>
@@ -302,6 +298,19 @@ function FormularioSolicitud({ closeForm }) {
                         <option value="Estudiante">Estudiante</option>
                     </select>
                 </div>
+                <div>
+                    <label className="block text-rojo font-semibold mb-1" htmlFor="email">
+                        Email Solicitante
+                    </label>
+                    <input
+                        className="shadow appearance-none border border-rojo rounded-full w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                        id="email"
+                        type="email"
+                        value={emailSolicitante}
+                        onChange={handleEmailSolicitanteChange}
+                        placeholder="Ingrese su email"
+                    />
+                </div>
                 <div className="pt-5" >
                     <button
                         type="submit"
@@ -320,5 +329,9 @@ function FormularioSolicitud({ closeForm }) {
         </div>
     );
 }
+
+FormularioSolicitud.propTypes = {
+    closeForm: PropTypes.func.isRequired
+};
 
 export default FormularioSolicitud;

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 
 const FormularioEstado = ({ solicitud, onClose, onSave }) => {
     const [nuevoEstado, setNuevoEstado] = useState(solicitud.estado);

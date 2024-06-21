@@ -2,22 +2,26 @@ import PropTypes from 'prop-types';
 import data from '../utils/programas.json';
 import { useEffect, useState } from "react";
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
 import FormularioEstado from './FormularioEstado';
-import FormularioNotificacion from './FormularioNotificacion'
+import FormularioFechasLimite from './FormularioFechasLimite';
 import { DownloadIcon, SendIcon, DeclineIcon } from '../assets/svg/SvgIcon';
 import toast from 'react-hot-toast';
 import { Tooltip } from 'react-tooltip'
 import config from '../../config';
+import { ConfigIcon } from '../assets/svg/SvgIcon';
+
+const pagesToShow = 5;  // Número de botones de página a mostrar a la vez
 
 const Table = ({ userData, selectedOption }) => {
+
+    const [currentPage, setCurrentPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
+
     const user_type = userData.information.user_type;
     const user_facultad = userData.information.user_facultad || '';
     const user_programa = userData.information.user_programa || '';
-    const showRechazarButton = user_type !== '2' && user_type !== '3' && user_type !== '4' && user_type !== '5';
+    const showRechazarButton = user_type !== '2' && user_type !== '3' && user_type !== '4' && user_type !== '6';
 
-
-    const navigate = useNavigate()
     const [solicitudes, setSolicitudes] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -25,7 +29,7 @@ const Table = ({ userData, selectedOption }) => {
     const [selected, setSelected] = useState(solicitudes.map(() => false));
     const [facultad, setFacultad] = useState(user_facultad);
     const [programa, setPrograma] = useState(user_programa);
-    const [estado, setEstado] = useState('Inexistente');
+    const [estado, setEstado] = useState('Sin revisar');
     const [nivelRevision, setNivelRevision] = useState('1');
     const [filter, setFilter] = useState({
         fechaInicio: '',
@@ -33,7 +37,7 @@ const Table = ({ userData, selectedOption }) => {
     });
 
     const [showForm, setShowForm] = useState(false);
-    const [showFormNotificacion, setShowFormNotificacion] = useState(false);
+    const [showFormFechas, setShowFormFechas] = useState(false);
     const [selectedSolicitud, setSelectedSolicitud] = useState(null);
     const [selectedSolicitudes, setSelectedSolicitudes] = useState([])
     const [reloadData, setReloadData] = useState()
@@ -43,18 +47,17 @@ const Table = ({ userData, selectedOption }) => {
         setShowForm(true);
     };
 
-    const formNotificacion = () => {
-        setShowFormNotificacion(true)
-    }
+    const formFechasLimite = () => {
+        setShowFormFechas(true);
+    };
 
     const closeForm = () => {
         setShowForm(false);
         setSelectedSolicitud(null);
     };
 
-    const closeFormNotificacion = () => {
-        setShowFormNotificacion(false)
-        setReloadData(Date.now())
+    const closeFormFechas = () => {
+        setShowFormFechas(false);
     };
 
     const saveEstado = async (id, nuevoEstado) => {
@@ -75,7 +78,25 @@ const Table = ({ userData, selectedOption }) => {
         }
     }
 
-    const fetchSolicitudes = async (option, token) => {
+    const saveFechasLimite = async (fecha_inicio, fecha_fin) => {
+        try {
+            const token = localStorage.getItem('authToken');
+            const data = {
+                "fecha_inicio": fecha_inicio,
+                "fecha_fin": fecha_fin
+            };
+            const response = await axios.post(`${config.backendUrl}/api/materialbibliografico/fechas_limite/`, data, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+            toast.success(response.data.mensaje)
+        } catch (error) {
+            toast.error(error.response.data.mensaje)
+        }
+    }
+
+    const fetchSolicitudes = async (option, token, page) => {
         let endpoint = '';
         if (option === 'solicitudes') {
             endpoint = `${config.backendUrl}/api/materialbibliografico/solicitud/solicitudes_revisadas/`;
@@ -93,9 +114,12 @@ const Table = ({ userData, selectedOption }) => {
                 programa: programa,
                 estado: estado,
                 nivel_revision: nivelRevision,
+                fecha_inicio: filter.fechaInicio,
+                fecha_fin: filter.fechaFin,
+                page: page,
             },
         });
-        return response.data;
+        return response;
     };
 
     const enviarSolicitudes = async (ids_solicitudes) => {
@@ -162,16 +186,19 @@ const Table = ({ userData, selectedOption }) => {
         const fetchData = async () => {
             try {
                 const token = localStorage.getItem('authToken');
-                const solicitudesResponse = await fetchSolicitudes(selectedOption, token);
-                setSolicitudes(solicitudesResponse);
-                setSelected(solicitudesResponse.map(() => false));
+                const solicitudesResponse = await fetchSolicitudes(selectedOption, token, currentPage);
+                setSolicitudes(solicitudesResponse.data.results);
+                setTotalPages(solicitudesResponse.data.total_pages)
+                setSelected(solicitudesResponse.data.results.map(() => false));
                 setSelectedAll(false)
                 setSelectedSolicitudes([])
                 setLoading(false);
+                setError(null)
             } catch (error) {
-                setError(error.message);
+                if (error.response.status === 404) { setCurrentPage(currentPage - 1), setError(null) }
+                else { setError(error.message); }
                 setLoading(false);
-                navigate('/')
+                //navigate('/')
             }
         }
         if (user_facultad) {
@@ -181,7 +208,7 @@ const Table = ({ userData, selectedOption }) => {
             }
         }
         fetchData();
-    }, [reloadData, facultad, programa, estado, nivelRevision]);
+    }, [reloadData, facultad, programa, estado, nivelRevision, currentPage, filter.fechaInicio, filter.fechaFin]);
 
     const handleSelectAll = () => {
         setSelectedAll(!selectedAll);
@@ -260,16 +287,6 @@ const Table = ({ userData, selectedOption }) => {
         }));
     };
 
-    const filteredSolicitudes = solicitudes.filter((solicitud) => {
-        const fechaSolicitud = new Date(solicitud.fecha_solicitud);
-        const fechaInicio = filter.fechaInicio ? new Date(filter.fechaInicio) : null;
-        const fechaFin = filter.fechaFin ? new Date(filter.fechaFin) : null;
-        return (
-            (!fechaInicio || fechaSolicitud >= fechaInicio) &&
-            (!fechaFin || fechaSolicitud <= fechaFin)
-        );
-    });
-
     if (loading) {
         return <div className="pt-32 pl-80 pr-8 w-screen">Cargando...</div>;
     }
@@ -278,9 +295,56 @@ const Table = ({ userData, selectedOption }) => {
         return <div className="pt-32 pl-80 pr-8 w-screen">Error: {error}</div>;
     }
 
-    return (
+    const renderPageButtons = () => {
+        const pages = [];
+        const startPage = Math.max(1, currentPage - Math.floor(pagesToShow / 2));
+        const endPage = Math.min(totalPages, startPage + pagesToShow - 1);
+
+        if (currentPage > 1) {
+            pages.push(
+                <button key="prev" onClick={() => setCurrentPage(currentPage - 1)} className="mx-1 px-3 py-1 border rounded bg-white text-rojo">
+                    &laquo;
+                </button>
+            );
+        }
+
+        for (let i = startPage; i <= endPage; i++) {
+            pages.push(
+                <button
+                    key={i}
+                    onClick={() => setCurrentPage(i)}
+                    className={`mx-1 px-3 py-1 border rounded ${currentPage === i ? 'bg-rojo text-white' : 'bg-white text-rojo'}`}
+                >
+                    {i}
+                </button>
+            );
+        }
+
+        if (currentPage < totalPages) {
+            pages.push(
+                <button key="next" onClick={() => setCurrentPage(currentPage + 1)} className="mx-1 px-3 py-1 border rounded bg-white text-rojo">
+                    &raquo;
+                </button>
+            );
+        }
+
+        return pages;
+    };
+
+    return !error && (
         <div className="pt-32 pl-80 pr-8 w-screen">
-            <h1 className="text-2xl text-center text-rojo font-bold mb-4">Solicitudes</h1>
+            <div className='flex justify-center text-center gap-1'>
+                <h1 className="text-3xl font-bold items-center text-center text-rojo mb-4">Solicitudes</h1>
+                {user_type === '5' && (
+                    <button onClick={() => formFechasLimite()} className=" text-white py-2 rounded flex items-center font-bold stroke-rojo fill-white duration-300 hover:scale-105 mb-4"
+                        data-tooltip-id="info"
+                        data-tooltip-content='Configurar fechas límite para aceptar solicitudes'
+                        data-tooltip-place="right"
+                    >
+                        <ConfigIcon size={28} />
+                    </button>
+                )}
+            </div>
             <div className="flex items-center justify-center mb-4 border rounded w-fit p-4 m-auto">
                 <div className="flex items-center mr-4">
                     <span className="inline-block w-4 h-4 rounded-full bg-green-500 mr-2"></span>
@@ -369,9 +433,9 @@ const Table = ({ userData, selectedOption }) => {
                                 onChange={handleNivelRevisionChange}
                             >
                                 <option value="1">Recibidas</option>
-                                {user_type !== '6' && (<option value="2">Enviadas</option>)}
-                                <option value="5">{user_type === '6' ? 'Aprobadas' : 'Aprobadas por vicerrector'}</option>
-                                <option value="6">{user_type === '6' ? 'Rechazadas' : 'Rechazadas por vicerrector'}</option>
+                                {user_type !== '5' && (<option value="2">Enviadas</option>)}
+                                <option value="5">{user_type !== '6' ? 'Aprobadas' : 'Aprobadas por biblioteca'}</option>
+                                <option value="6">{user_type !== '6' ? 'Rechazadas' : 'Rechazadas por biblioteca'}</option>
                             </select>
                         </label>
                     )}
@@ -408,25 +472,25 @@ const Table = ({ userData, selectedOption }) => {
                     onSave={saveEstado}
                 />
             )}
-            {showFormNotificacion && (
-                <FormularioNotificacion
-                    solicitudes={selectedSolicitudes}
-                    onClose={closeFormNotificacion}
+            {showFormFechas && (
+                <FormularioFechasLimite
+                    onClose={closeFormFechas}
+                    onSave={saveFechasLimite}
                 />
             )}
             <table className="min-w-full bg-white border border-gray-300">
                 <thead>
                     <tr>
-                        <th className="py-2 px-4 border-b">Título</th>
-                        <th className="py-2 px-4 border-b">Autor</th>
-                        <th className="py-2 px-4 border-b">Editorial</th>
-                        <th className="py-2 px-4 border-b">Edición</th>
-                        <th className="py-2 px-4 border-b">Ejemplares</th>
-                        <th className="py-2 px-4 border-b">Año publicación</th>
-                        <th className="py-2 px-4 border-b">Idioma</th>
-                        <th className="py-2 px-4 border-b">Estado</th>
+                        <th className="py-2 px-4 border-b-2 border-gray-200 bg-gray-100">Título</th>
+                        <th className="py-2 px-4 border-b-2 border-gray-200 bg-gray-100">Autor</th>
+                        <th className="py-2 px-4 border-b-2 border-gray-200 bg-gray-100">Editorial</th>
+                        <th className="py-2 px-4 border-b-2 border-gray-200 bg-gray-100">Edición</th>
+                        <th className="py-2 px-4 border-b-2 border-gray-200 bg-gray-100">Ejemplares</th>
+                        <th className="py-2 px-4 border-b-2 border-gray-200 bg-gray-100">Año publicación</th>
+                        <th className="py-2 px-4 border-b-2 border-gray-200 bg-gray-100">Idioma</th>
+                        <th className="py-2 px-4 border-b-2 border-gray-200 bg-gray-100">Estado</th>
                         {(((user_type === '5' || user_type === '6') && estado === 'Inexistente' && nivelRevision === '1') || ((user_type === '2' || user_type === '3' || user_type === '4') && estado === 'Sin revisar' && nivelRevision === '1')) && (
-                            <th className="py-2 px-4 border-b">
+                            <th className="py-2 px-4 border-b-2 border-gray-200 bg-gray-100">
                                 <div className="flex items-center justify-center">
                                     Seleccionar
                                     <input
@@ -441,14 +505,14 @@ const Table = ({ userData, selectedOption }) => {
                     </tr>
                 </thead>
                 <tbody>
-                    {filteredSolicitudes.map((solicitud, index) => (
+                    {solicitudes.map((solicitud, index) => (
                         <tr key={index}>
-                            <td className="py-2 px-4 border-b text-center">{solicitud.libro.titulo}</td>
-                            <td className="py-2 px-4 border-b text-center">{solicitud.libro.autor}</td>
-                            <td className="py-2 px-4 border-b text-center">{solicitud.libro.editorial}</td>
-                            <td className="py-2 px-4 border-b text-center">{solicitud.libro.edicion}</td>
-                            <td className="py-2 px-4 border-b text-center">{solicitud.libro.ejemplares}</td>
-                            <td className="py-2 px-4 border-b text-center">{solicitud.libro.fecha_publicacion}
+                            <td className="py-2 px-4 border-b text-sm text-center">{solicitud.libro.titulo}</td>
+                            <td className="py-2 px-4 border-b text-sm text-center">{solicitud.libro.autor}</td>
+                            <td className="py-2 px-4 border-b text-sm text-center">{solicitud.libro.editorial}</td>
+                            <td className="py-2 px-4 border-b text-sm text-center">{solicitud.libro.edicion}</td>
+                            <td className="py-2 px-4 border-b text-sm text-center">{solicitud.libro.ejemplares}</td>
+                            <td className="py-2 px-4 border-b text-sm text-center">{solicitud.libro.fecha_publicacion}
                                 <span
                                     data-tooltip-id="info"
                                     data-tooltip-content={
@@ -460,8 +524,8 @@ const Table = ({ userData, selectedOption }) => {
                                     ?
                                 </span>
                             </td>
-                            <td className="py-2 px-4 border-b text-center">{solicitud.libro.idioma}</td>
-                            <td className="py-2 px-4 border-b text-center">
+                            <td className="py-2 px-4 border-b text-sm text-center">{solicitud.libro.idioma}</td>
+                            <td className="py-2 px-4 border-b text-sm text-center">
                                 {
                                     user_type === '5' ? (
                                         <button onClick={() => handleEstadoClick(solicitud)}>
@@ -503,6 +567,9 @@ const Table = ({ userData, selectedOption }) => {
                 </tbody>
             </table>
             <Tooltip id="info" />
+            <div className="flex justify-center mt-4 mb-4">
+                {renderPageButtons()}
+            </div>
             <div className="flex justify-between mt-4">
                 <button onClick={() => generarReporte({ facultad: facultad, programa: programa, estado: estado, nivel_revision: nivelRevision, fecha_inicio: filter.fechaInicio, fecha_fin: filter.fechaFin })} className="bg-black text-white py-2 px-4 rounded flex items-center font-bold stroke-white fill-white gap-2 duration-300 hover:scale-105">
                     <DownloadIcon size={32} />
@@ -515,7 +582,7 @@ const Table = ({ userData, selectedOption }) => {
                             Rechazar
                         </button>
                     )}
-                    {user_type !== '6' && (
+                    {user_type !== '5' && (
                         <button onClick={() => enviarSolicitudes(selectedSolicitudes)} className="bg-rojo text-white py-2 px-4 rounded flex items-center font-bold stroke-white fill-white gap-2 duration-300 hover:scale-105"
                             data-tooltip-id="info"
                             data-tooltip-content={user_type === '5' ? 'Para enviar solicitudes colocar las recibidas e inexistentes' : 'Para enviar solicitudes colocar las recibidas y sin revisar'}
@@ -525,14 +592,14 @@ const Table = ({ userData, selectedOption }) => {
                             {!showRechazarButton ? 'Enviar seleccionadas' : 'Adquirir y comunicar'}
                         </button>
                     )}
-                    {user_type === '6' && (
-                        <button onClick={() => formNotificacion()} className="bg-rojo text-white py-2 px-4 rounded flex items-center font-bold stroke-white fill-white gap-2 duration-300 hover:scale-105"
+                    {user_type === '5' && (
+                        <button onClick={() => enviarSolicitudes(selectedSolicitudes)} className="bg-rojo text-white py-2 px-4 rounded flex items-center font-bold stroke-white fill-white gap-2 duration-300 hover:scale-105"
                             data-tooltip-id="info"
                             data-tooltip-content='Para aprobar solicitudes colocar las recibidas e inexistentes'
                             data-tooltip-place="top"
                         >
                             <SendIcon size={32} />
-                            {!showRechazarButton ? 'Enviar seleccionadas' : 'Adquirir y comunicar'}
+                            {!showRechazarButton ? 'Enviar seleccionadas' : 'Aprobar'}
                         </button>
                     )}
                 </div>
